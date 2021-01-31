@@ -9,6 +9,10 @@ import androidx.core.content.ContextCompat;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    public static final int TYPE_TEMPERATURAS = 1;
+    public static final int TYPE_EXPOSICION = 2;
+    public static final int TYPE_HIDRATACION = 3;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent service1 = new Intent(context, NotificationService.class);
