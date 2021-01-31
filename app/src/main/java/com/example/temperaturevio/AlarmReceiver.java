@@ -15,9 +15,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        //Obtener tipo de notificacion y crear el intent correspondiente
+
         Intent service1 = new Intent(context, NotificationService.class);
         service1.setData((Uri.parse("custom://" + System.currentTimeMillis())));
         ContextCompat.startForegroundService(context, service1);
+
+        //Crear nueva notificacion del mismo tipo
 
     }
 }
