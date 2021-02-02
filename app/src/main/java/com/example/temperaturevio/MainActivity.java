@@ -11,8 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.EventLog;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,11 +21,11 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    // Valores menores que 60 son solo recomendados para debug
+    // (Debug: 1 // Normal: 60)
     private static final int UNA_HORA_EN_MINUTOS = 1;
 
     private final static int REQUEST_PREFERENCIAS = 345;
-    private ImageButton btnIniciar, btnDetener, btnConfiguraciones;
+    private Button btnIniciar, btnDetener, btnConfiguraciones;
     private TextView lblTemperatura;
     private SharedPreferences misDatos;
     private SharedPreferences.Editor editor;
@@ -45,9 +44,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void initComponents() {
-        btnIniciar = (ImageButton) findViewById(R.id.btnIniciar);
-        btnDetener = (ImageButton) findViewById(R.id.btnDetener);
-        btnConfiguraciones = (ImageButton) findViewById(R.id.btnConfiguraciones);
+        btnIniciar = (Button) findViewById(R.id.btnIniciar);
+        btnDetener = (Button) findViewById(R.id.btnDetener);
+        btnConfiguraciones = (Button) findViewById(R.id.btnConfiguraciones);
 
         lblTemperatura = (TextView) findViewById(R.id.lblTemperatura);
 
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor = misDatos.edit();
 
         if (misDatos.getBoolean("iniciado", false)) btnIniciar.setEnabled(false);
-        else btnDetener.setEnabled(false);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
@@ -110,16 +108,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor.putBoolean("iniciado", false);
         editor.apply();
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        PendingIntent pendingIntent;
-
-        //Recorrer por orden los 3 tipos de alarmas y cancelar todos
-        for (int i = 1; i <= 3; i++) {
-            pendingIntent = PendingIntent.getBroadcast(MainActivity.this, i, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
-            alarmManager.cancel(pendingIntent);
-        }
-
         btnIniciar.setEnabled(true);
         btnDetener.setEnabled(false);
     }
@@ -139,9 +127,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             today.set(Calendar.MINUTE, 0);
             intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR;
         } else {
-            today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY));
-            today.set(Calendar.MINUTE, today.get(Calendar.MINUTE) + UNA_HORA_EN_MINUTOS);
-            intervaloDeRepeticion = UNA_HORA_EN_MINUTOS * 60 * 1000;
+            int hora = today.get(Calendar.HOUR_OF_DAY);
+            int minuto = today.get(Calendar.MINUTE) + 1;
+            if (minuto >= 60) {
+                minuto -= 60;
+                hora++;
+            }
+            today.set(Calendar.HOUR_OF_DAY, hora);
+            today.set(Calendar.MINUTE, minuto);
+            intervaloDeRepeticion = 60 * 1000;
         }
         today.set(Calendar.SECOND, 0);
 
@@ -156,16 +150,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR * 4;
         } else {
             int hora = today.get(Calendar.HOUR_OF_DAY);
-            int minuto = today.get(Calendar.MINUTE) + UNA_HORA_EN_MINUTOS;
-            if (minuto >= 60) {
+            int minuto = today.get(Calendar.MINUTE) + 2;
+            while (minuto >= 60) {
+                minuto -= 60;
                 hora++;
-                minuto = minuto - 60;
             }
             today.set(Calendar.HOUR_OF_DAY, hora);
             today.set(Calendar.MINUTE, minuto);
-            intervaloDeRepeticion = 4 * UNA_HORA_EN_MINUTOS * 60 * 1000;
+            intervaloDeRepeticion = 2 * 60 * 1000;
         }
-        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.SECOND, 10);
 
         crearAlarma(AlarmReceiver.TYPE_EXPOSICION, today.getTimeInMillis(), intervaloDeRepeticion);
     }
@@ -178,16 +172,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR * 6;
         } else {
             int hora = today.get(Calendar.HOUR_OF_DAY);
-            int minuto = today.get(Calendar.MINUTE) + UNA_HORA_EN_MINUTOS;
-            if (minuto >= 60) {
+            int minuto = today.get(Calendar.MINUTE) + 3;
+            while (minuto >= 60) {
+                minuto -= 60;
                 hora++;
-                minuto = minuto - 60;
             }
             today.set(Calendar.HOUR_OF_DAY, hora);
             today.set(Calendar.MINUTE, minuto);
-            intervaloDeRepeticion = 6 * UNA_HORA_EN_MINUTOS * 60 * 1000;
+            intervaloDeRepeticion = 3 * 60 * 1000;
         }
-        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.SECOND, 20);
 
         crearAlarma(AlarmReceiver.TYPE_HIDRATACION, today.getTimeInMillis(), intervaloDeRepeticion);
     }
@@ -195,11 +189,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void crearAlarma(int id, Long timestamp, long intervaloRepeticion) {
         AlarmManager alarmManager = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
         Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
-        alarmIntent.setData((Uri.parse("custom://" + System.currentTimeMillis())));
-        //alarmManager.set(AlarmManager.RTC_WAKEUP, timestamp, pendingIntent);
+        //alarmIntent.setData((Uri.parse("custom://" + System.currentTimeMillis())));
+        alarmIntent.setData(Uri.parse("custom://" + id));
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timestamp, intervaloRepeticion, pendingIntent);
-
     }
 
     private void iniciarSensorDeTemperatura() {

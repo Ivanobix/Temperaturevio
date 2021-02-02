@@ -27,7 +27,14 @@ public class NotificationService extends IntentService {
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected void onHandleIntent(Intent intent2) {
-        crearNotificacion("Prueba", R.drawable.ic_notification);
+        int tipo = intent2.getIntExtra("tipo", 0);
+        if (tipo == AlarmReceiver.TYPE_TEMPERATURAS)
+            crearNotificacion("Temperatura", R.drawable.ic_notificacion);
+        else if (tipo == AlarmReceiver.TYPE_EXPOSICION)
+            crearNotificacion("Exposicion", R.drawable.ic_notificacion);
+        else if (tipo == AlarmReceiver.TYPE_HIDRATACION)
+            crearNotificacion("Hidratación", R.drawable.ic_notificacion);
+
     }
 
     private void crearNotificacion(String mensaje, int icono) {
