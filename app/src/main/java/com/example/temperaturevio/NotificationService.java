@@ -16,6 +16,8 @@ import androidx.core.app.NotificationCompat;
 
 public class NotificationService extends IntentService {
 
+    private Intent intent2;
+
     public NotificationService(String name) {
         super(name);
     }
@@ -27,14 +29,34 @@ public class NotificationService extends IntentService {
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected void onHandleIntent(Intent intent2) {
+        this.intent2 = intent2;
         int tipo = intent2.getIntExtra("tipo", 0);
         if (tipo == AlarmReceiver.TYPE_TEMPERATURAS)
-            crearNotificacion("Temperatura", R.drawable.ic_notificacion);
+            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
         else if (tipo == AlarmReceiver.TYPE_EXPOSICION)
-            crearNotificacion("Exposicion", R.drawable.ic_notificacion);
+            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
         else if (tipo == AlarmReceiver.TYPE_HIDRATACION)
-            crearNotificacion("Hidratación", R.drawable.ic_notificacion);
+            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
 
+    }
+
+    private String obtenerMensaje() {
+        String aDevolver = "";
+        int tipo = intent2.getIntExtra("tipo", 0);
+        float temperaturaActual = intent2.getFloatExtra("temperaturaActual", -275);
+        if (tipo == AlarmReceiver.TYPE_TEMPERATURAS) {
+            if (temperaturaActual > 50) aDevolver = "Infierno";
+            else if (temperaturaActual > 25) aDevolver = "Hace calor";
+            else if (temperaturaActual > 15) aDevolver = "Se está bien";
+            else if (temperaturaActual > -10) aDevolver = "Hace frío";
+            else aDevolver = "Polo Norte";
+        } else if (tipo == AlarmReceiver.TYPE_EXPOSICION) {
+            aDevolver = "Probando";
+        } else if (tipo == AlarmReceiver.TYPE_HIDRATACION) {
+            float litrosRecomendados = intent2.getFloatExtra("litrosRecomendados", (float) 2.3);
+            aDevolver = "Recurda que debes beber al menos " + litrosRecomendados + "L de agua a lo largo del día.";
+        }
+        return aDevolver;
     }
 
     private void crearNotificacion(String mensaje, int icono) {

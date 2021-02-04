@@ -65,24 +65,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        iniciarSensorDeTemperatura();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        sensorManager.unregisterListener(this);
-    }
-
     private void initHandlers() {
         btnIniciar.setOnClickListener(v -> iniciar());
         btnDetener.setOnClickListener(v -> detener());
@@ -96,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void iniciar() {
         iniciarAlarmas();
+        iniciarSensorDeTemperatura();
 
         editor.putBoolean("iniciado", true);
         editor.apply();
@@ -105,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void detener() {
+        detenerSensorDeTemperatura();
+
         editor.putBoolean("iniciado", false);
         editor.apply();
 
@@ -196,12 +181,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void iniciarSensorDeTemperatura() {
-        sensorManager.registerListener(this, sensor, 3000);
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    private void detenerSensorDeTemperatura() {
+        sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        lblTemperatura.setText(String.valueOf(event.values[0]));
+        float temperaturaActual = event.values[0];
+
+        lblTemperatura.setText(String.valueOf(temperaturaActual));
+
+        editor.putFloat("temperaturaActual", temperaturaActual);
+        editor.apply();
     }
 
     @Override

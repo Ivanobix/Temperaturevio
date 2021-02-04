@@ -17,16 +17,26 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences preferences = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
-        if(preferences.getBoolean("iniciado", false)){
+        if (preferences.getBoolean("iniciado", false)) {
             String data = intent.getDataString();
             int tipo;
-            if (data != null && data.equals("custom://" + TYPE_TEMPERATURAS)) tipo = TYPE_TEMPERATURAS;
-            else if (data != null && data.equals("custom://" + TYPE_EXPOSICION)) tipo = TYPE_EXPOSICION;
-            else if (data != null && data.equals("custom://" + TYPE_HIDRATACION)) tipo = TYPE_HIDRATACION;
+            if (data != null && data.equals("custom://" + TYPE_TEMPERATURAS))
+                tipo = TYPE_TEMPERATURAS;
+            else if (data != null && data.equals("custom://" + TYPE_EXPOSICION))
+                tipo = TYPE_EXPOSICION;
+            else if (data != null && data.equals("custom://" + TYPE_HIDRATACION))
+                tipo = TYPE_HIDRATACION;
             else tipo = 0;
             Intent service1 = new Intent(context, NotificationService.class);
             service1.setData((Uri.parse("custom://" + System.currentTimeMillis())));
+
             service1.putExtra("tipo", tipo);
+
+            float temperaturaActual = preferences.getFloat("temperaturaActual", -275);
+            service1.putExtra("temperaturaActual", temperaturaActual);
+
+            float litrosRecomendados = preferences.getFloat("litrosRecomendados", -275);
+            service1.putExtra("litrosRecomendados", temperaturaActual);
             ContextCompat.startForegroundService(context, service1);
         }
 
