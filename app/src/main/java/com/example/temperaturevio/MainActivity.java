@@ -21,8 +21,7 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    // (Debug: 1 // Normal: 60)
-    private static final int UNA_HORA_EN_MINUTOS = 1;
+    public static final boolean DEBUG = true;
 
     private final static int REQUEST_PREFERENCIAS = 345;
     private Button btnIniciar, btnDetener, btnConfiguraciones;
@@ -54,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor = misDatos.edit();
 
         if (misDatos.getBoolean("iniciado", false)) btnIniciar.setEnabled(false);
+        else btnDetener.setEnabled(false);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
@@ -106,11 +106,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void crearAlarmasTemperaturas(Calendar today) {
-        long intervaloDeRepeticion;
-        if (UNA_HORA_EN_MINUTOS == 60) {
+        if (!DEBUG) {
             today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY) + 1);
             today.set(Calendar.MINUTE, 0);
-            intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR;
         } else {
             int hora = today.get(Calendar.HOUR_OF_DAY);
             int minuto = today.get(Calendar.MINUTE) + 1;
@@ -120,64 +118,56 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             today.set(Calendar.HOUR_OF_DAY, hora);
             today.set(Calendar.MINUTE, minuto);
-            intervaloDeRepeticion = 60 * 1000;
         }
         today.set(Calendar.SECOND, 0);
 
-        crearAlarma(AlarmReceiver.TYPE_TEMPERATURAS, today.getTimeInMillis(), intervaloDeRepeticion);
+        crearAlarma(AlarmReceiver.TYPE_TEMPERATURAS, today.getTimeInMillis());
     }
 
     private void crearAlarmasExposicion(Calendar today) {
-        long intervaloDeRepeticion;
-        if (UNA_HORA_EN_MINUTOS == 60) {
-            today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY) + 4);
+        if (!DEBUG) {
+            today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY) + 3);
             today.set(Calendar.MINUTE, 0);
-            intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR * 4;
         } else {
             int hora = today.get(Calendar.HOUR_OF_DAY);
-            int minuto = today.get(Calendar.MINUTE) + 2;
-            while (minuto >= 60) {
+            int minuto = today.get(Calendar.MINUTE) + 1;
+            if (minuto >= 60) {
                 minuto -= 60;
                 hora++;
             }
             today.set(Calendar.HOUR_OF_DAY, hora);
             today.set(Calendar.MINUTE, minuto);
-            intervaloDeRepeticion = 2 * 60 * 1000;
-        }
-        today.set(Calendar.SECOND, 10);
-
-        crearAlarma(AlarmReceiver.TYPE_EXPOSICION, today.getTimeInMillis(), intervaloDeRepeticion);
-    }
-
-    private void crearAlarmaHidratacion(Calendar today) {
-        long intervaloDeRepeticion;
-        if (UNA_HORA_EN_MINUTOS == 60) {
-            today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY) + 6);
-            today.set(Calendar.MINUTE, 0);
-            intervaloDeRepeticion = AlarmManager.INTERVAL_HOUR * 6;
-        } else {
-            int hora = today.get(Calendar.HOUR_OF_DAY);
-            int minuto = today.get(Calendar.MINUTE) + 3;
-            while (minuto >= 60) {
-                minuto -= 60;
-                hora++;
-            }
-            today.set(Calendar.HOUR_OF_DAY, hora);
-            today.set(Calendar.MINUTE, minuto);
-            intervaloDeRepeticion = 3 * 60 * 1000;
         }
         today.set(Calendar.SECOND, 20);
 
-        crearAlarma(AlarmReceiver.TYPE_HIDRATACION, today.getTimeInMillis(), intervaloDeRepeticion);
+        crearAlarma(AlarmReceiver.TYPE_EXPOSICION, today.getTimeInMillis());
     }
 
-    private void crearAlarma(int id, Long timestamp, long intervaloRepeticion) {
+    private void crearAlarmaHidratacion(Calendar today) {
+        if (!DEBUG) {
+            today.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY) + 2);
+            today.set(Calendar.MINUTE, 0);
+        } else {
+            int hora = today.get(Calendar.HOUR_OF_DAY);
+            int minuto = today.get(Calendar.MINUTE) + 1;
+            if (minuto >= 60) {
+                minuto -= 60;
+                hora++;
+            }
+            today.set(Calendar.HOUR_OF_DAY, hora);
+            today.set(Calendar.MINUTE, minuto);
+        }
+        today.set(Calendar.SECOND, 40);
+
+        crearAlarma(AlarmReceiver.TYPE_HIDRATACION, today.getTimeInMillis());
+    }
+
+    private void crearAlarma(int id, long timestamp) {
         AlarmManager alarmManager = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
         Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        //alarmIntent.setData((Uri.parse("custom://" + System.currentTimeMillis())));
         alarmIntent.setData(Uri.parse("custom://" + id));
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timestamp, intervaloRepeticion, pendingIntent);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, timestamp, pendingIntent);
     }
 
     private void iniciarSensorDeTemperatura() {
@@ -191,10 +181,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         float temperaturaActual = event.values[0];
-
-        lblTemperatura.setText(String.valueOf(temperaturaActual));
-
         editor.putFloat("temperaturaActual", temperaturaActual);
+
+        float temperaturaConvertida;
+        if (misDatos.getString("escala", "celsius").equals("celsius")) {
+            temperaturaConvertida = temperaturaActual;
+        } else if (misDatos.getString("escala", "celsius").equals("kelvin")) {
+            temperaturaConvertida = (float) (temperaturaActual + 273.15);
+        } else {
+            temperaturaConvertida = (temperaturaActual * 9 / 5) + 32;
+        }
+        editor.putFloat("temperaturaConvertida", temperaturaConvertida);
+
+        lblTemperatura.setText(String.valueOf(temperaturaConvertida));
         editor.apply();
     }
 

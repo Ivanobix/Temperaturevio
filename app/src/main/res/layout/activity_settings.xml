@@ -79,76 +79,56 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
+            android:gravity="center_horizontal"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/lblMedicion">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/rbFahrenheit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fahrenheit (ºF)" />
 
-                <RadioButton
-                    android:id="@+id/rbCelsius"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="Celsius (ºC)"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <RadioButton
+                android:id="@+id/rbCelsius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Celsius (ºC)" />
 
-                <RadioButton
-                    android:id="@+id/rbKelvin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Kelvin (ºK)"
-                    app:layout_constraintEnd_toStartOf="@+id/rbFahrenheit"
-                    app:layout_constraintStart_toEndOf="@+id/rbCelsius"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <RadioButton
-                    android:id="@+id/rbFahrenheit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fahrenheit (ºF)"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <RadioButton
+                android:id="@+id/rbKelvin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kelvin (ºK)" />
 
         </RadioGroup>
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swAltasTemperaturas"
+            android:id="@+id/swAvisosTemperatura"
             android:layout_width="160dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:checked="true"
-            android:text="Altas Temperaturas"
+            android:checked="false"
+            android:text="Avisos de Temperatura"
             app:layout_constraintStart_toStartOf="@+id/lblNotificaciones"
             app:layout_constraintTop_toBottomOf="@+id/lblNotificaciones" />
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swBajasTemperaturas"
-            android:layout_width="160dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="16dp"
-            android:checked="true"
-            android:text="Bajas Temperaturas"
-            app:layout_constraintStart_toStartOf="@+id/swAltasTemperaturas"
-            app:layout_constraintTop_toBottomOf="@+id/swAltasTemperaturas" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swExposicionFrio"
+            android:id="@+id/swAvisosExposicion"
             android:layout_width="160dp"
             android:layout_height="40dp"
             android:layout_marginEnd="32dp"
-            android:checked="true"
-            android:text="Exposición Frío"
+            android:checked="false"
+            android:text="Avisos de Exposición"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/swAltasTemperaturas" />
+            app:layout_constraintTop_toTopOf="@+id/swAvisosTemperatura" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swPersonalizacion"
@@ -168,6 +148,7 @@
             android:layout_marginTop="16dp"
             android:editable="false"
             android:ems="10"
+            android:focusable="auto"
             android:hint="Altura (cm):"
             android:inputType="number"
             app:layout_constraintEnd_toEndOf="parent"
@@ -181,6 +162,7 @@
             android:layout_marginTop="8dp"
             android:editable="false"
             android:ems="10"
+            android:focusable="auto"
             android:hint="Peso (kg):"
             android:inputType="numberDecimal"
             app:layout_constraintEnd_toEndOf="@+id/txtAltura"
@@ -194,6 +176,7 @@
             android:layout_marginTop="8dp"
             android:editable="false"
             android:ems="10"
+            android:focusable="auto"
             android:hint="Edad:"
             android:inputType="number"
             app:layout_constraintEnd_toEndOf="@+id/txtPeso"
@@ -201,24 +184,15 @@
             app:layout_constraintTop_toBottomOf="@+id/txtPeso" />
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swExposicionCalor"
-            android:layout_width="160dp"
-            android:layout_height="40dp"
-            android:checked="true"
-            android:text="Exposición Calor"
-            app:layout_constraintStart_toStartOf="@+id/swExposicionFrio"
-            app:layout_constraintTop_toTopOf="@+id/swBajasTemperaturas" />
-
-        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swHidratacion"
             android:layout_width="160dp"
             android:layout_height="40dp"
-            android:layout_marginTop="16dp"
-            android:checked="true"
+            android:layout_marginTop="8dp"
+            android:checked="false"
             android:text="Hidratación"
-            app:layout_constraintEnd_toEndOf="@+id/swExposicionCalor"
-            app:layout_constraintStart_toStartOf="@+id/swBajasTemperaturas"
-            app:layout_constraintTop_toBottomOf="@+id/swBajasTemperaturas" />
+            app:layout_constraintEnd_toEndOf="@+id/swAvisosExposicion"
+            app:layout_constraintStart_toStartOf="@+id/swAvisosTemperatura"
+            app:layout_constraintTop_toBottomOf="@+id/swAvisosTemperatura" />
 
         <Button
             android:id="@+id/btnAplicar"
@@ -226,7 +200,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Aplicar"
-            app:layout_constraintStart_toStartOf="@+id/swBajasTemperaturas"
+            app:layout_constraintStart_toStartOf="@+id/swAvisosTemperatura"
             app:layout_constraintTop_toBottomOf="@+id/swHidratacion" />
 
         <Button
@@ -234,7 +208,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancelar"
-            app:layout_constraintEnd_toEndOf="@+id/swExposicionCalor"
+            app:layout_constraintEnd_toEndOf="@+id/swAvisosExposicion"
             app:layout_constraintTop_toTopOf="@+id/btnAplicar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

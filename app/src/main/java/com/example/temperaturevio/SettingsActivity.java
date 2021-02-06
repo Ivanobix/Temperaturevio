@@ -13,8 +13,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static final int RESULT_APLICAR = 1375;
     public static final int RESULT_CANCELAR = 3452;
-    private SwitchCompat swAltasTemperaturas, swBajasTemperaturas;
-    private SwitchCompat swExposicionFrio, swExposicionCalor;
+    private SwitchCompat swAvisosTemperatura, swAvisosExposicion;
     private SwitchCompat swPersonalizacion, swHidratacion;
     private RadioButton rbCelsius, rbKelvin, rbFahrenheit;
     private EditText txtAltura, txtPeso, txtEdad;
@@ -33,10 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        swAltasTemperaturas = (SwitchCompat) findViewById(R.id.swAltasTemperaturas);
-        swBajasTemperaturas = (SwitchCompat) findViewById(R.id.swBajasTemperaturas);
-        swExposicionFrio = (SwitchCompat) findViewById(R.id.swExposicionFrio);
-        swExposicionCalor = (SwitchCompat) findViewById(R.id.swExposicionCalor);
+        swAvisosTemperatura = (SwitchCompat) findViewById(R.id.swAvisosTemperatura);
+        swAvisosExposicion = (SwitchCompat) findViewById(R.id.swAvisosExposicion);
         swPersonalizacion = (SwitchCompat) findViewById(R.id.swPersonalizacion);
         swHidratacion = (SwitchCompat) findViewById(R.id.swHidratacion);
 
@@ -66,10 +63,8 @@ public class SettingsActivity extends AppCompatActivity {
             rbKelvin.setChecked(true);
         else rbFahrenheit.setChecked(true);
 
-        if (misDatos.getBoolean("altasTemperaturas", true)) swAltasTemperaturas.setChecked(true);
-        if (misDatos.getBoolean("bajasTemperaturas", true)) swBajasTemperaturas.setChecked(true);
-        if (misDatos.getBoolean("exposicionCalor", true)) swExposicionCalor.setChecked(true);
-        if (misDatos.getBoolean("exposicionFrio", true)) swExposicionFrio.setChecked(true);
+        if (misDatos.getBoolean("avisosTemperatura", true)) swAvisosTemperatura.setChecked(true);
+        if (misDatos.getBoolean("avisosExposicion", true)) swAvisosExposicion.setChecked(true);
         if (misDatos.getBoolean("hidratacion", true)) swHidratacion.setChecked(true);
 
         if (misDatos.getBoolean("personalizacion", true)) {
@@ -85,10 +80,8 @@ public class SettingsActivity extends AppCompatActivity {
         else if (rbKelvin.isChecked()) editor.putString("escala", "kelvin");
         else editor.putString("escala", "fahrenheit");
 
-        editor.putBoolean("altasTemperaturas", swAltasTemperaturas.isChecked());
-        editor.putBoolean("bajasTemperaturas", swBajasTemperaturas.isChecked());
-        editor.putBoolean("exposicionCalor", swExposicionCalor.isChecked());
-        editor.putBoolean("exposicionFrio", swExposicionFrio.isChecked());
+        editor.putBoolean("avisosTemperatura", swAvisosTemperatura.isChecked());
+        editor.putBoolean("avisosExposicion", swAvisosExposicion.isChecked());
         editor.putBoolean("hidratacion", swHidratacion.isChecked());
 
         editor.putBoolean("personalizacion", swPersonalizacion.isChecked());
