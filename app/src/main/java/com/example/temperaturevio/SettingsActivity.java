@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -86,13 +87,31 @@ public class SettingsActivity extends AppCompatActivity {
 
         editor.putBoolean("personalizacion", swPersonalizacion.isChecked());
         if (swPersonalizacion.isChecked()) {
-            editor.putString("altura", txtAltura.getText().toString());
-            editor.putString("peso", txtPeso.getText().toString());
-            editor.putString("edad", txtEdad.getText().toString());
+            String altura = txtAltura.getText().toString();
+            if (!altura.equals("")) {
+                String peso = txtPeso.getText().toString();
+                if (!peso.equals("")) {
+                    String edad = txtEdad.getText().toString();
+                    if (!edad.equals("")) {
+                        editor.putString("altura", altura);
+                        editor.putString("peso", peso);
+                        editor.putString("edad", edad);
+                        editor.putFloat("litrosRecomendados", (float) (Math.round((Float.parseFloat(peso) / 35) * 100) / 100d));
+                    } else {
+                        Toast.makeText(SettingsActivity.this, "Introduce tu edad.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(SettingsActivity.this, "Introduce tu peso.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(SettingsActivity.this, "Introduce tu altura.", Toast.LENGTH_SHORT).show();
+            }
+
         } else {
             editor.putString("altura", "");
             editor.putString("peso", "");
             editor.putString("edad", "");
+            editor.putFloat("litrosRecomendados", (float) 2.3);
         }
         editor.apply();
 
