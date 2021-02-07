@@ -31,12 +31,15 @@ public class NotificationService extends IntentService {
     protected void onHandleIntent(Intent intent2) {
         this.intent2 = intent2;
         int tipo = intent2.getIntExtra("tipo", 0);
-        if (tipo == AlarmReceiver.TYPE_TEMPERATURAS)
-            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
-        else if (tipo == AlarmReceiver.TYPE_EXPOSICION)
-            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
-        else if (tipo == AlarmReceiver.TYPE_HIDRATACION)
-            crearNotificacion(obtenerMensaje(), R.drawable.ic_notificacion);
+        String mensaje = obtenerMensaje();
+        if (!mensaje.equals("")) {
+            if (tipo == AlarmReceiver.TYPE_TEMPERATURAS)
+                crearNotificacion(mensaje);
+            else if (tipo == AlarmReceiver.TYPE_EXPOSICION)
+                crearNotificacion(mensaje);
+            else if (tipo == AlarmReceiver.TYPE_HIDRATACION)
+                crearNotificacion(mensaje);
+        }
 
     }
 
@@ -44,8 +47,8 @@ public class NotificationService extends IntentService {
         String aDevolver = "";
         int tipo = intent2.getIntExtra("tipo", 0);
         float temperaturaActual = intent2.getFloatExtra("temperaturaActual", -275);
-        float temperaturaConvertida = intent2.getFloatExtra("temperaturaConvertida", -275);
         if (tipo == AlarmReceiver.TYPE_TEMPERATURAS) {
+            float temperaturaConvertida = intent2.getFloatExtra("temperaturaConvertida", -275);
             if (temperaturaActual > 50)
                 aDevolver = "\uD83D\uDC80 \uD83D\uDD25 ¿Estamos en el Infierno?: " + temperaturaConvertida + "º";
             else if (temperaturaActual > 25)
@@ -57,15 +60,23 @@ public class NotificationService extends IntentService {
             else
                 aDevolver = "\uD83D\uDC80 \uD83C\uDF00 ¿Estamos en la Edad de Hielo?: " + temperaturaConvertida + "º";
         } else if (tipo == AlarmReceiver.TYPE_EXPOSICION) {
-            aDevolver = "Probando";
+            float ultimaExposicion = intent2.getFloatExtra("ultimaExposicion", -275);
+            if (ultimaExposicion > 41) {
+                if (temperaturaActual >= 40)
+                    aDevolver = "\u2757 \u2757 ¡Sufres riesgo de sufrir hipertermia!";
+            } else if (ultimaExposicion < -30) {
+                if (temperaturaActual <= -25)
+                    aDevolver = "\u2757 \u2757 ¡Sufres riesgo de sufrir hipotermia!";
+            }
         } else if (tipo == AlarmReceiver.TYPE_HIDRATACION) {
             float litrosRecomendados = intent2.getFloatExtra("litrosRecomendados", (float) 2.3);
+            if (temperaturaActual >= 38) litrosRecomendados += 0.5;
             aDevolver = "\uD83D\uDCA7 \uD83C\uDF0A Recuerda que debes beber al menos " + litrosRecomendados + "L de agua a lo largo del día.";
         }
         return aDevolver;
     }
 
-    private void crearNotificacion(String mensaje, int icono) {
+    private void crearNotificacion(String mensaje) {
         String NOTIFICATION_CHANNEL_ID = getApplicationContext().getString(R.string.app_name);
         Context context = this.getApplicationContext();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -92,7 +103,7 @@ public class NotificationService extends IntentService {
             mIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             pendingIntent = PendingIntent.getActivity(context, 0, mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentTitle(getString(R.string.app_name)).setCategory(Notification.CATEGORY_SERVICE)
-                    .setSmallIcon(icono)
+                    .setSmallIcon(R.drawable.ic_notificacion)
                     .setContentText(mensaje)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setAutoCancel(true)
@@ -107,7 +118,7 @@ public class NotificationService extends IntentService {
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification notification = new NotificationCompat.Builder(this)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(icono)
+                    .setSmallIcon(R.drawable.ic_notificacion)
                     .setSound(soundUri)
                     .setAutoCancel(true)
                     .setContentTitle(getString(R.string.app_name)).setCategory(Notification.CATEGORY_SERVICE)

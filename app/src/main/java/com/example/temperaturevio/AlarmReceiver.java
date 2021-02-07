@@ -24,6 +24,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences preferences = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
         contexto = context;
         if (preferences.getBoolean("iniciado", false)) {
             String data = intent.getDataString();
@@ -51,11 +52,18 @@ public class AlarmReceiver extends BroadcastReceiver {
                 float temperaturaActual = preferences.getFloat("temperaturaActual", -275);
                 service1.putExtra("temperaturaActual", temperaturaActual);
 
-                float temperaturaConvertida = preferences.getFloat("temperaturaConvertida", -275);
-                service1.putExtra("temperaturaConvertida", temperaturaConvertida);
-
-                float litrosRecomendados = preferences.getFloat("litrosRecomendados", (float) 2.3);
-                service1.putExtra("litrosRecomendados", litrosRecomendados);
+                if (tipo == TYPE_TEMPERATURAS) {
+                    float temperaturaConvertida = preferences.getFloat("temperaturaConvertida", -275);
+                    service1.putExtra("temperaturaConvertida", temperaturaConvertida);
+                } else if (tipo == TYPE_EXPOSICION) {
+                    float ultimaExposicion = preferences.getFloat("ultimaExposicion", -275);
+                    service1.putExtra("ultimaExposicion", ultimaExposicion);
+                    editor.putFloat("ultimaExposicion", temperaturaActual);
+                    editor.apply();
+                } else {
+                    float litrosRecomendados = preferences.getFloat("litrosRecomendados", (float) 2.3);
+                    service1.putExtra("litrosRecomendados", litrosRecomendados);
+                }
                 ContextCompat.startForegroundService(context, service1);
             }
         }
